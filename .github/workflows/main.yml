@@ -11,7 +11,7 @@ jobs:
          uses: actions/setup-java@v4
          with: 
             distribution: 'temurin'
-            version: '17'
+            java-version: '17'
        - name: build
          run: |
             mvn clean package
@@ -30,6 +30,9 @@ jobs:
          uses: actions/checkout@v4
        - name: setup
          uses: actions/setup-java@v4
+         with:
+          distribution: 'temurin'
+          java-version: 17
        - name: testing
          run: |
             mvn test
@@ -40,4 +43,4 @@ jobs:
       - name: deploying into aws
         run: |
            docker pull samba1232/img1
-           docker run -rm -p 8080:8080 samba1232/img1
+           docker run --rm -p 8080:8080 samba1232/img1
