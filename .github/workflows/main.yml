@@ -15,8 +15,9 @@ jobs:
        - name: build
          run: |
             mvn clean package -X
-       - name: List target directory (debugging)
-         run: ls -l target || echo "not found"
+       - name: List WAR file (debug)
+         run: |
+          ls -lh web/target/
        - name: docker build
          run: |
             docker build -t samba1232/img1 .
