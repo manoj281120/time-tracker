@@ -10,3 +10,9 @@ jobs:
        - name: build
          run: |
             mvn clean package
+   test:
+     runs-on: ubuntu-latest
+     steps:
+       - name: testing
+         run: |
+            mvn test
