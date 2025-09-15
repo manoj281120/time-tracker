@@ -59,6 +59,7 @@ jobs:
           docker build -t samba1232/img2 .
           docker push samba1232/img2
   deploying_on_aws:
+     needs: pushing_artifactory
      runs-on: [ec2]
      steps:
        - name: deploying
