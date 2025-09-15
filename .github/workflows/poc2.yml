@@ -1,0 +1,60 @@
+name: poc2
+on:
+  workflow_dispatch:
+jobs:
+    task1:
+      runs-on: ubuntu-latest
+      steps:
+        - name: stopping apache
+          run: |
+            sudo systemctl stop apache2 || true
+            sudo systemctl disable apache2 || true
+        - name: installing nginx
+          run: |
+            sudo apt update -y
+            sudo apt-get install -y nginx
+            sudo systemctl enable nginx
+            sudo systemctl start nginx
+        - name: accesing the webpage
+          run: |
+              curl http://localhost
+    build:
+      runs-on: ubuntu-latest
+      steps:
+        - name: checkout code
+          uses: actions/checkout@v3
+        - name: installing maven
+          run: |
+             sudo apt update -y
+             sudo apt-get install -y openjdk-17-jdk
+             sudo apt install -y maven
+             java -version
+             mvn -v
+        - name: buiding application using maven
+          run: |
+              mvn clean package
+    test:
+      needs: build
+      runs-on: ubuntu-latest
+      steps:
+        - name: checkout code
+          uses: actions/checkout@v3
+        - name: testing
+          run: |
+            mvn test
+    pushing_artifactory:
+       needs: test
+       runs-on: ubuntu-latest
+       steps:
+         - name: login into docker
+           run: |
+              echo "${{DOCKER_PASSWORD}} | docker login -u "{{DOCKER_USERNAME}}" --password-stdin
+         - name: building & pushing docker image
+           run: |
+              docker build -t samba1232/img2 .
+              docker push samba1232/img2
+       
+    
+            
+           
+           
