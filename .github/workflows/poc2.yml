@@ -33,6 +33,12 @@ jobs:
       - name: Build application using Maven
         run: mvn clean package
 
+      - name: Upload WAR file
+        uses: actions/upload-artifact@v4
+        with:
+          name: war-artifact
+          path: web/target/time-tracker-web-*.war
+
   test:
     needs: build
     runs-on: ubuntu-latest
@@ -50,19 +56,28 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Download WAR artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: war-artifact
+          path: web/target/
+
       - name: Login to Docker Hub
         run: |
-          echo "${{secrets.DOCKER_PASSWORD}}" | docker login -u "${{secrets.DOCKER_USERNAME}}" --password-stdin
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
       - name: Build and push Docker image
         run: |
           docker build -t samba1232/img2 .
           docker push samba1232/img2
+
   deploying_on_aws:
-     needs: pushing_artifactory
-     runs-on: [ec2]
-     steps:
-       - name: deploying
-         run: |
-           docker pull samba1232/img2
-        
+    needs: pushing_artifactory
+    runs-on: [ec2]
+    steps:
+      - name: Pull and run Docker image
+        run: |
+          docker pull samba1232/img2
+          docker stop myapp || true
+          docker rm myapp || true
+          docker run -d --name myapp -p 8080:8080 samba1232/img2
